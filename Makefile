@@ -154,9 +154,10 @@ build/docker/bin/%: build/image/src/.dummy $(PROJECT_FILES)
 	@mkdir -p build/docker/bin build/docker/pkg
 	@docker run -i \
 		--user=$(UID) \
-		-v $(abspath build/docker/bin):/opt/gopath/bin \
-		-v $(abspath build/docker/pkg):/opt/gopath/pkg \
-		hyperledger/fabric-src:$(DOCKER_TAG) go install -ldflags "$(GO_LDFLAGS)" github.com/hyperledger/fabric/$(TARGET)
+		-e "GOPATH=/opt/gopath" \
+		-v /opt/gopath:/opt/gopath \
+		-v /opt/go:/usr/local/go \
+		hyperledger/fabric-src:$(DOCKER_TAG) /opt/go/bin/go install -ldflags "$(GO_LDFLAGS)" github.com/hyperledger/fabric/$(TARGET)
 	@touch $@
 
 build/bin:
