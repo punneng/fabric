@@ -154,10 +154,9 @@ build/docker/bin/%: build/image/src/.dummy $(PROJECT_FILES)
 	@mkdir -p build/docker/bin build/docker/pkg
 	@docker run -i \
 		--user=$(UID) \
-		-e "GOPATH=/opt/gopath" \
-		-v /opt/gopath:/opt/gopath \
-		-v /opt/go:/usr/local/go \
-		hyperledger/fabric-src:$(DOCKER_TAG) /opt/go/bin/go install -ldflags "$(GO_LDFLAGS)" github.com/hyperledger/fabric/$(TARGET)
+		-v $(abspath build/docker/bin):/opt/gopath/bin \
+		-v $(abspath build/docker/pkg):/opt/gopath/pkg \
+		hyperledger/fabric-src:$(DOCKER_TAG) go install -ldflags "$(GO_LDFLAGS)" github.com/hyperledger/fabric/$(TARGET)
 	@touch $@
 
 build/bin:
@@ -232,7 +231,7 @@ build/image/%/.dummy: build/image/src/.dummy build/docker/bin/%
 	@cat images/app/Dockerfile.in \
 		| sed -e 's/_TAG_/$(DOCKER_TAG)/g' \
 		> $(@D)/Dockerfile
-	cp build/docker/bin/$(TARGET) $(@D)/bin
+	cp -a build/docker/bin/$(TARGET) $(@D)/bin
 	docker build -t $(PROJECT_NAME)-$(TARGET) $(@D)
 	docker tag $(PROJECT_NAME)-$(TARGET) $(PROJECT_NAME)-$(TARGET):$(DOCKER_TAG)
 	@touch $@
