@@ -99,8 +99,7 @@ cat <<EOF > $DOCKERFILE
 FROM $BASENAME
 `for i in \`docker run -i $BASENAME /bin/bash -l -c printenv\`;
 do
-   IFS=',' read -a envarray <<< "$i"
-   echo ENV envarray[0] envarray[1]
+   echo ENV $i
 done`
 COPY scripts $REMOTESCRIPTS
 RUN $REMOTESCRIPTS/common.sh
